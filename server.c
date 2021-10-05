@@ -37,9 +37,9 @@ int main(int argc, char *argv[])
   }
   */
 
-  //pid_t pid = fork();
+  pid_t pid = fork();
 
-  //if( pid == 0)
+  if( pid == 0)
   {
 
   //fprintf("backup_server running pid:");
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
   //int open_new_file = open("/home/pi/daemon_logs/log.txt", O_RDWR | O_CREAT, 0777);
   //message_buffer = "hello from backup_server"; 
-  int open_new_file = open("/home/pi/daemon_logs/log.txt", O_RDWR | O_CREAT, 0666);
+  int open_new_file = open("/home/pi/daemon_logs/log.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
   if(open_new_file == -1)
   {
     fprintf(stderr, "NULL was returned: %s\n", gai_strerror(open_new_file));
@@ -204,6 +204,8 @@ int main(int argc, char *argv[])
     //fprintf(stderr, "errno: %d\n", read_bytes);
   }//if
   close(accepted_socket);
+  char end[] = "finished\n\0";
+  write(open_new_file, end, 9);
   close(open_new_file);
   //close();
   //return 0;
@@ -213,10 +215,10 @@ int main(int argc, char *argv[])
 
 
   }//main loop
-  /*else
+  else
   {
     fprintf(stdout, "backup_server running pid: %d\n", pid);
     //exit(0);
-  }*/
+  }
   return 0;
 }
