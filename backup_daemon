@@ -1,0 +1,51 @@
+#! /bin/bash
+# /etc/init.d/blah
+
+### BEGIN INIT INFO
+# Provides:	blah	
+# Required-Start:    #remote_fs $syslog 
+# Required-Stop:     $remote_fs $syslog 
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts backup file server 
+# Description:       starts backup file server using start-stop-daemon
+### END INIT INFO
+
+
+#echo "atrrt nwq ">> /home/pi/nam.txt
+#/home/pi/repos/backup_daemon/backup_server >> /home/pi/daemon_logs/log.txt
+# Carry out specific functions when asked to by the system
+
+NAME=blah
+DAEMON=/home/pi/hello
+#PIDFILE=
+
+test -x $DAEMON || exit 5
+
+#part of the init script package contains default values for init scripts 
+. /lib/init/vars.sh
+#predefined functions that adhere to the Linux Standard Base
+. /lib/lsb/init-functions
+
+
+function start_daemon {
+  start-stop-daemon --start
+}
+
+case "$1" in
+  start)
+    echo "start backup_server acript">> /home/pi/nam.txt
+    ;;
+  stop)
+    echo "stop script">> /home/pi/nam.txt
+    ;;
+  status)
+    echo "statuus">> /home/pi/nam.txt
+    ;;
+  *)
+    echo "usage: /etc/init.d/blah {start|stop}">> /home/pi/nam.txt
+    exit 1
+    ;;
+esac
+
+exit 0
