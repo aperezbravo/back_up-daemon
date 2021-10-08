@@ -1,0 +1,20 @@
+#! /bin/bash
+# /etc/init.d/blah
+
+case "$1" in
+  start)
+    echo "start backup_server acript">> /home/pi/nam.txt
+    ;;
+  stop)
+    echo "stop script">> /home/pi/nam.txt
+    ;;
+  status)
+    echo "statuus">> /home/pi/nam.txt
+    ;;
+  *)
+    echo "usage: /etc/init.d/blah {start|stop}">> /home/pi/nam.txt
+    exit 1
+    ;;
+esac
+
+exit 0
