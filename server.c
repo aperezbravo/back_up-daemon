@@ -5,7 +5,7 @@
 #include<sys/socket.h>
 #include<sys/types.h>
 #include<netdb.h>
-//memset()
+//memset(), strcat()
 #include<string.h>
 //errno
 #include<errno.h>
@@ -17,9 +17,10 @@
 #include<time.h>
 //umask()
 #include<sys/stat.h>
+#include "connect.h"
 
 #define BUFF_SIZE 256
-#define PORT "4040"
+#define PORT "4000"
 
 int main(int argc, char *argv[])
 {
@@ -29,10 +30,11 @@ int main(int argc, char *argv[])
   {
 
     umask(0);
-    //time_t t;
-    //time(&t);
     char err[] = "err\0";
-    //int tm[] = ctime(&t);
+    char err1[] = "err1\0";
+    char err2[] = "err2\0";
+    char err3[] = "err3\0";
+
     int open_new_file = open("/home/pi/daemon_logs/log.txt", O_RDWR | O_CREAT | O_APPEND, 0666);
 
     if(open_new_file == -1)
@@ -43,10 +45,9 @@ int main(int argc, char *argv[])
     }
     else
     {
-      write(open_new_file, err, 2);
+      write(open_new_file, err1, 3);
     }
-    //fprintf(fp, "PID: %d\n", getpid());
-
+    //fprintf(stdout, "PID: %d\n", getpid());
 
     char requestBuffer[BUFF_SIZE];
     struct addrinfo hints;
@@ -62,15 +63,17 @@ int main(int argc, char *argv[])
     hints.ai_protocol = 0;
 
 
+    //fprintf(stdout, "line 68\n");
     //obtain ip address from the server
     int server = 0;
     if( (server = getaddrinfo(NULL, PORT, &hints, &results)) != 0)
     {
       //fprintf(stderr, "SERVER ERR: getaddrinfo(): errno. %d %s\n", server, gai_strerror(server));
-      write(open_new_file, err, 2);
+      write(open_new_file, err2, 3);
       close(open_new_file);
       return -1;
     }//if
+    //fprintf(stdout, "line 78\n");
 
     struct addrinfo *cur_address;
     int server_socket = 0;
@@ -80,10 +83,9 @@ int main(int argc, char *argv[])
     {
       if( (server_socket = socket(cur_address->ai_family, cur_address->ai_socktype, cur_address->ai_protocol)) == -1)
       {
-        //return -1;
         continue;
       }//if
-      else if( !bind(server_socket, cur_address->ai_addr, cur_address->ai_addrlen) )
+      if( !bind(server_socket, cur_address->ai_addr, cur_address->ai_addrlen) )
       {
         break;
       }//if
@@ -92,13 +94,16 @@ int main(int argc, char *argv[])
     }//for
 
 
+    //fprintf(stdout, "line 100\n");
     if(!cur_address)
     {
       //fprintf(stderr, "SERVER ERR: FAILED TO FIND SPECIFIED \n");
-      write(open_new_file, err, 2);
+      //fprintf(stderr, "%s\n", gai_strerror(cur_address));
+      write(open_new_file, err3, 3);
       close(open_new_file);
       exit(1);
     }
+    //fprintf(stdout, "line 108\n");
 
     //listen in on specified socket on server
     if( listen(server_socket, 5) == -1 )
@@ -109,6 +114,7 @@ int main(int argc, char *argv[])
       close(server_socket);
       exit(1);
     }
+    //fprintf(stdout, "line 119\n");
 
 
     struct sockaddr_storage incoming_address;
@@ -125,25 +131,34 @@ int main(int argc, char *argv[])
       close(server_socket);
       exit(1);
     }
+    //fprintf(stdout, "line 136\n");
 
     close(server_socket);
 
     //finished setup, beign communications
-    //int file_path = recv(accepted_socket, (void*)requestBuffer, BUFF_SIZE, 0);
-    recv(accepted_socket, (void*)requestBuffer, BUFF_SIZE, 0);
+    int file_size = recv(accepted_socket, (void*)requestBuffer, BUFF_SIZE, 0);
+    //recv(accepted_socket, (void*)requestBuffer, BUFF_SIZE, 0);
+
+    
+    //fprintf(stdout,  "%d\n", file_size);
 
     char *file_name = requestBuffer;
+    //char file = request;
+    char path[100] = "/var/www/media/ssd2/backup_file_server/\0";
+    strcat(path, file_name);
+    //fprintf(stdout, "%s\n", path);
     char tmp[1];
     tmp[0] = 100;
     send(accepted_socket, tmp, 1, 0); 
 
-    int new_file = open(file_name, O_RDWR | O_CREAT, 0666);
+    int new_file = open(path, O_RDWR | O_CREAT, 0666);
     if(new_file == -1)
     {
       write(open_new_file, err, 2);
       close(open_new_file);
       exit(1);
     }
+    //fprintf(stdout, "line 163\n");
 
     int read_bytes = 0;
     int bytes_written = 0;
@@ -161,7 +176,7 @@ int main(int argc, char *argv[])
       }//
     }//while
 
-    //if(read_bytes < 0)
+    if(read_bytes < 0)
     {
       //fprintf(stderr, "SERVER ERR: %s\n", gai_strerror(read_bytes));
       //fprintf(stderr, "errno: %d\n", read_bytes);
@@ -175,7 +190,7 @@ int main(int argc, char *argv[])
   }//main loop
   else
   {
-    fprintf(stdout, "backup_server running pid: %d\n", pid);
+    //fprintf(stdout, "backup_server running pid: %d\n", pid);
   }
   return 0;
 }
