@@ -87,8 +87,6 @@ int main(int argc, char *argv[])
       //send(s, buffer, 0, 0);
     }//else
   }//if server_reply
-  int state = 0;
-  int iter = 0;
 
 
   return 0;
@@ -106,8 +104,10 @@ int lookup_and_connect(const char *host, const char *service)
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = 0;
   hints.ai_protocol = 0;
+  char h[] = "192.168.254.202\0";
+  char sr[] = "4040\0";
 
-  if( (s=getaddrinfo(host, service, &hints, &result) != 0) )
+  if( (s=getaddrinfo(h, sr, &hints, &result) != 0) )
   {
     fprintf(stderr, "stream-talk-client:  getaddrinfo: %s\n", gai_strerror(s));
   }
@@ -119,6 +119,7 @@ int lookup_and_connect(const char *host, const char *service)
 
   for(rp = result; rp != NULL; rp=rp->ai_next)
   {
+    fprintf(stdout, "hello\n");
     if( (s=socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) == -1 )
     {
       continue;
@@ -133,7 +134,7 @@ int lookup_and_connect(const char *host, const char *service)
 
   if(rp == NULL)
   {
-    fprintf(stderr, "stream-talk-client: connect\n");
+    fprintf(stderr, "CLIENT ERR: Connection Failed\n");
     return -1;
   }
 
