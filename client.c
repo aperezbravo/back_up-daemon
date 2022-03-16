@@ -14,29 +14,32 @@
 //open()
 #include<fcntl.h>
 #include<sys/stat.h>
-
+#define HOST "192.168.254.100"
+#define PORT "4040"
 #define BUFFER_SIZE 256
 
 int lookup_and_connect(const char *host, const char *service);
 
 int main(int argc, char *argv[])
 {
-  char *host;
+  //char *host;
+  char host[] = "192.168.254.100";
   char buffer[BUFFER_SIZE]; 
   int s;
   int len;
-  char *port;
+  //char *port;
+  char port[] = "4040";
   char *file_name;
 
-  if(argc >= 4)
+  if(argc == 2)
   {
-    host = argv[1];
-    port = argv[2];
-    file_name = argv[3];
+    //host = argv[1];
+    //port = argv[2];
+    file_name = argv[1];
   }
   else
   {
-    fprintf(stdout, "usage: <host><port><file_name>\n");
+    fprintf(stdout, "usage: <file_name>\n");
     exit(1);
   }//else
 
@@ -87,8 +90,8 @@ int main(int argc, char *argv[])
       //send(s, buffer, 0, 0);
     }//else
   }//if server_reply
-  int state = 0;
-  int iter = 0;
+  //int state = 0;
+  //int iter = 0;
 
 
   return 0;
