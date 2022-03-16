@@ -14,29 +14,26 @@
 //open()
 #include<fcntl.h>
 #include<sys/stat.h>
-
 #define BUFFER_SIZE 256
 
 int lookup_and_connect(const char *host, const char *service);
 
 int main(int argc, char *argv[])
 {
-  char *host;
+  char host[] = "192.168.254.100";
   char buffer[BUFFER_SIZE]; 
   int s;
   int len;
-  char *port;
+  char port[] = "4040";
   char *file_name;
 
-  if(argc >= 4)
+  if(argc == 2)
   {
-    host = argv[1];
-    port = argv[2];
-    file_name = argv[3];
+    file_name = argv[1];
   }
   else
   {
-    fprintf(stdout, "usage: <host><port><file_name>\n");
+    fprintf(stdout, "usage: <file_name>\n");
     exit(1);
   }//else
 
@@ -104,10 +101,8 @@ int lookup_and_connect(const char *host, const char *service)
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = 0;
   hints.ai_protocol = 0;
-  char h[] = "192.168.254.202\0";
-  char sr[] = "4040\0";
 
-  if( (s=getaddrinfo(h, sr, &hints, &result) != 0) )
+  if( (s=getaddrinfo(host, service, &hints, &result) != 0) )
   {
     fprintf(stderr, "stream-talk-client:  getaddrinfo: %s\n", gai_strerror(s));
   }
@@ -119,7 +114,6 @@ int lookup_and_connect(const char *host, const char *service)
 
   for(rp = result; rp != NULL; rp=rp->ai_next)
   {
-    fprintf(stdout, "hello\n");
     if( (s=socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol)) == -1 )
     {
       continue;
