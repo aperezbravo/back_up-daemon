@@ -149,7 +149,6 @@ int main(int argc, char *argv[])
     send(accepted_socket, tmp, 1, 0); 
 
     int new_file = open(path, O_RDWR | O_CREAT, 0666);
->>>>>>> 2523a4943240e76e2d0996a654c4b29821201475
     if(new_file == -1)
     {
 			fprintf(stderr,"SERVER_ERR: %d\n", 100);
