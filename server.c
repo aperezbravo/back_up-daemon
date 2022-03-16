@@ -23,9 +23,10 @@
 
 int main(int argc, char *argv[])
 {
-  pid_t pid = fork();
+  //pid_t pid = fork();
+	//pid_t pid = getpid();
 
-  if( pid == 0)
+  //if( pid == 0)
   {
 
     umask(0);
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
     struct addrinfo *results;
 
 
-    memset(requestBuffer, 0, BUFF_SIZE);
+    //memset(requestBuffer, 0, BUFF_SIZE);
     memset(&hints, 0, sizeof(hints)); 
 
     hints.ai_family = AF_INET; //IPv4
@@ -114,11 +115,17 @@ int main(int argc, char *argv[])
     struct sockaddr_storage incoming_address;
     socklen_t addr_size = sizeof(incoming_address);
     //accept any incoming connection, get their address
-    int accepted_socket = accept(server_socket, (struct sockaddr*) &incoming_address, &addr_size);
+    //int accepted_socket = accept(server_socket, (struct sockaddr*) &incoming_address, &addr_size);
 
+		//Begin infinite loop
+
+		while(1)
+		{
+    memset(requestBuffer, 0, BUFF_SIZE);
+    int accepted_socket = accept(server_socket, (struct sockaddr*) &incoming_address, &addr_size);
     if(accepted_socket == -1 )
     {
-      //fprintf(stderr, "SERVER ERR: %s\n", strerror(errno));
+      fprintf(stderr, "SERVER ERR: %s\n", strerror(errno));
       write(open_new_file, err, 2);
       close(open_new_file);
       close(accepted_socket);
@@ -126,20 +133,23 @@ int main(int argc, char *argv[])
       exit(1);
     }
 
-    close(server_socket);
+    //close(server_socket);
 
     //finished setup, beign communications
     //int file_path = recv(accepted_socket, (void*)requestBuffer, BUFF_SIZE, 0);
     recv(accepted_socket, (void*)requestBuffer, BUFF_SIZE, 0);
 
     char *file_name = requestBuffer;
+		char storage_path[] = "/var/www/media/ssd1/documents/";
+		strcat(storage_path, file_name);
     char tmp[1];
     tmp[0] = 100;
     send(accepted_socket, tmp, 1, 0); 
 
-    int new_file = open(file_name, O_RDWR | O_CREAT, 0666);
+    int new_file = open(storage_path, O_RDWR | O_CREAT, 0666);
     if(new_file == -1)
     {
+			fprintf(stderr,"SERVER_ERR: %d\n", 100);
       write(open_new_file, err, 2);
       close(open_new_file);
       exit(1);
@@ -153,7 +163,7 @@ int main(int argc, char *argv[])
       bytes_written = write(new_file, requestBuffer, read_bytes);
       if(bytes_written < 0)
       {
-        //fprintf(stderr, "SERVER_ERR: %s\n", gai_strerror(bytes_written));
+        fprintf(stderr, "SERVER_ERR: %s\n", gai_strerror(bytes_written));
         //fprintf(stderr, "%d\n", bytes_written);
         write(open_new_file, err, 2);
         close(open_new_file);
@@ -167,15 +177,21 @@ int main(int argc, char *argv[])
       //fprintf(stderr, "errno: %d\n", read_bytes);
     }//if
   
+		//close then new accepted socket, not the PORT
     close(accepted_socket);
     char end[] = "finished\n\0";
     write(open_new_file, end, 9);
     close(open_new_file);
 
+	} //end infinite loop
+
+		//char message[] = "backup_server running pid: %d\n", pid;
+    //write(open_new_file, "backup_serer running pid:%d\n", pid, 2);
+		//write(open_new_file, pid, sizeof(pid));
   }//main loop
-  else
+  //else
   {
-    fprintf(stdout, "backup_server running pid: %d\n", pid);
+    //fprintf(stdout, "backup_server running pid: %d\n", pid);
   }
   return 0;
 }
